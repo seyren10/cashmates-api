@@ -21,6 +21,14 @@ class SavingsGoal extends Model
 
     protected $appends = ['current_balance'];
 
+    protected function casts(): array
+    {
+        return [
+            'deadline' => 'datetime',
+            'target_amount' => 'float',
+        ];
+    }
+
     public function group()
     {
         return $this->belongsTo(Group::class);

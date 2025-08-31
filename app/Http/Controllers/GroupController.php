@@ -17,7 +17,7 @@ class GroupController extends Controller
     public function index(Request $request)
     {
         // Get groups the user belongs to
-        $groups = $request->user()->groups()->with('savingsGoals')->get();
+        $groups = $request->user()->groups()->get();
 
         return response()->json($groups);
     }
