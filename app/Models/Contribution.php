@@ -17,6 +17,13 @@ class Contribution extends Model implements HasMedia
 
     protected $fillable = ["savings_goal_id", "user_id", "amount", "note"];
 
+    protected function casts(): array
+    {
+        return [
+            'amount' => 'float'
+        ];
+    }
+
     public function goal()
     {
         return $this->belongsTo(SavingsGoal::class, 'savings_goal_id');

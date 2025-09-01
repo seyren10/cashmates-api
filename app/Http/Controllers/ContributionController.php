@@ -6,8 +6,10 @@ use App\Http\Requests\StoreContributionRequest;
 use App\Http\Requests\UpdateContributionRequest;
 use App\Models\Contribution;
 use App\Models\SavingsGoal;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class ContributionController extends Controller
 {
@@ -16,7 +18,7 @@ class ContributionController extends Controller
      */
     public function index(SavingsGoal $savingsGoal)
     {
-        return response()->json($savingsGoal->contributions()->with('user')->get());
+        return response()->json($savingsGoal->contributions()->with('user')->withCount('comments')->get());
     }
 
     /**
@@ -24,15 +26,21 @@ class ContributionController extends Controller
      */
     public function store(StoreContributionRequest $request, SavingsGoal $savingsGoal)
     {
-        $validated = $request->validated();
-        Log::info($validated);
-        $contribution = $savingsGoal->contributions()->create([...$validated, "user_id" => $request->user()->id]);
+        try {
+            DB::beginTransaction();
 
-        if ($request->hasFile('receipt')) {
-            $contribution->addMediaFromRequest('receipt')->toMediaCollection('receipts');
+            $validated = $request->validated();
+            $contribution = $savingsGoal->contributions()->create([...$validated, "user_id" => $request->user()->id]);
+
+            if ($request->hasFile('receipt')) {
+                $contribution->addMediaFromRequest('receipt')->toMediaCollection('receipts');
+            }
+
+            DB::commit();
+            return response()->json($contribution->load('media'), 201);
+        } catch (Throwable $e) {
+            DB::rollBack();
         }
-
-        return response()->json($contribution->load('media'), 201);
     }
 
     /**
