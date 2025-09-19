@@ -17,7 +17,7 @@ class GroupController extends Controller
     public function index(Request $request)
     {
         // Get groups the user belongs to
-        $groups = $request->user()->groups()->get();
+        $groups = $request->user()->groups()->withCount(['savingsGoals', 'users'])->get();
 
         return response()->json($groups);
     }
@@ -42,7 +42,9 @@ class GroupController extends Controller
     {
         Gate::authorize('view', $group);
 
-        return response()->json($group->load('savingsGoals'));
+        return response()->json($group->load(['savingsGoals' => function ($query) {
+            return $query->withCount(['expenses', 'contributions']);
+        }]));
     }
 
     /**
