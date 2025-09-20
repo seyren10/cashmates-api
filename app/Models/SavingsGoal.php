@@ -26,6 +26,8 @@ class SavingsGoal extends Model
         return [
             'deadline' => 'datetime',
             'target_amount' => 'float',
+            'contributions_sum_amount' => 'float',
+            'expenses_sum_amount' => 'float'
         ];
     }
 

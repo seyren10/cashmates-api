@@ -39,7 +39,16 @@ class SavingsGoalController extends Controller
      */
     public function show(SavingsGoal $savingsGoal)
     {
-        return response()->json($savingsGoal->load(['group'])->loadCount(['contributions', 'expenses']));
+        $savingsGoal
+            ->load(['group'])
+            ->loadCount([
+                'contributions',
+                'expenses',
+            ])
+            ->loadSum('contributions', 'amount')
+            ->loadSum('expenses', 'amount');
+
+        return response()->json($savingsGoal);
     }
 
     /**
