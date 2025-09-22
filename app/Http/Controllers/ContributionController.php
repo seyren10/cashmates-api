@@ -8,7 +8,6 @@ use App\Models\Contribution;
 use App\Models\SavingsGoal;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class ContributionController extends Controller
@@ -18,7 +17,7 @@ class ContributionController extends Controller
      */
     public function index(SavingsGoal $savingsGoal)
     {
-        return response()->json($savingsGoal->contributions()->with('user')->withCount('comments')->get());
+        return response()->json($savingsGoal->contributions()->with(['user', 'media'])->withCount('comments')->get());
     }
 
     /**
