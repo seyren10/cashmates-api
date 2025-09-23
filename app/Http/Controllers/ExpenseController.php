@@ -15,7 +15,14 @@ class ExpenseController extends Controller
      */
     public function index(SavingsGoal $savingsGoal)
     {
-        return response()->json($savingsGoal->expenses()->with('user')->get());
+        $expenses = $savingsGoal
+            ->expenses()
+            ->with(['user', 'media'])
+            ->withCount('comments')
+            ->latest()
+            ->get();
+
+        return response()->json($expenses);
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Traits\HasOrderScopes;
 use App\Models\User;
 use App\Models\Comment;
 use App\Models\SavingsGoal;
@@ -12,10 +13,18 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Expense extends Model implements HasMedia
 {
-    use InteractsWithMedia, HasFactory;
+    use InteractsWithMedia, HasFactory, HasOrderScopes;
 
     protected $fillable = ['savings_goal_id', 'user_id', 'amount', 'description'];
 
+
+
+    protected function casts(): array
+    {
+        return [
+            "amount" => 'float'
+        ];
+    }
     public function goal()
     {
         return $this->belongsTo(SavingsGoal::class, 'savings_goal_id');

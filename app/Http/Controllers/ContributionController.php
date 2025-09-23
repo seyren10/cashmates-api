@@ -17,7 +17,12 @@ class ContributionController extends Controller
      */
     public function index(SavingsGoal $savingsGoal)
     {
-        return response()->json($savingsGoal->contributions()->with(['user', 'media'])->withCount('comments')->get());
+        $contributions = $savingsGoal->contributions()
+            ->with(['user', 'media'])
+            ->withCount('comments')
+            ->latest()
+            ->get();
+        return response()->json($contributions);
     }
 
     /**
