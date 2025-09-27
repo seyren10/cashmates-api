@@ -5,10 +5,13 @@ namespace App\Models;
 use App\Models\Group;
 use App\Models\Expense;
 use App\Models\Contribution;
+use App\Models\Scopes\OrderByDescScope;
+use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+#[ScopedBy([OrderByDescScope::class])]
 class SavingsGoal extends Model
 {
     use HasFactory;

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreSavingsGoalRequest extends FormRequest
 {
@@ -24,7 +25,7 @@ class StoreSavingsGoalRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'target_amount' => 'required|numeric|min:1',
-            'deadline' => 'nullable|date',
+            'deadline' => ['nullable', Rule::date()->afterOrEqual(now())],
         ];
     }
 }
