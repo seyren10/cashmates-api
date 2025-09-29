@@ -45,7 +45,7 @@ class ExpensePolicy
      */
     public function delete(User $user, Expense $expense): bool
     {
-        return $expense->where('user_id', $user->id)->exists();
+        return $expense->user_id === $user->id;
     }
 
     /**

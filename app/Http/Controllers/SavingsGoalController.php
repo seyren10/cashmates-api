@@ -60,7 +60,7 @@ class SavingsGoalController extends Controller
 
         $validated = $request->validated();
 
-        $savingsGoal->update($validated->all());
+        $savingsGoal->update($validated);
 
         return response()->json($savingsGoal);
     }

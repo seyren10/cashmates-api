@@ -45,7 +45,7 @@ class CommentPolicy
      */
     public function delete(User $user, Comment $comment): bool
     {
-        return $comment->where('user_id', $user->id)->exists();
+        return $comment->user_id === $user->id;
     }
 
     /**

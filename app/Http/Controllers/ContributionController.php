@@ -8,6 +8,7 @@ use App\Models\Contribution;
 use App\Models\SavingsGoal;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class ContributionController extends Controller
@@ -58,9 +59,36 @@ class ContributionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateContributionRequest $request, Contribution $conribution)
+    public function update(UpdateContributionRequest $request, Contribution $contribution)
     {
-        //
+        try {
+
+            Gate::authorize('update', $contribution);
+
+            DB::beginTransaction();
+
+            $validated = $request->safe()->except('receipt');
+            $contribution->fill($validated);
+            $contribution->save();
+
+            Log::info($contribution->fresh());
+
+
+            if ($request->hasFile('receipt')) {
+                $contribution->clearMediaCollection('receipts');
+                $contribution->addMediaFromRequest('receipt')->toMediaCollection('receipts');
+            }
+
+            DB::commit();
+            return response()->noContent();
+        } catch (Throwable $e) {
+            DB::rollBack();
+            
+            return response()->json([
+                'message' => 'Failed to update contribution',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

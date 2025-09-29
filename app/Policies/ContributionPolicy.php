@@ -37,7 +37,7 @@ class ContributionPolicy
      */
     public function update(User $user, Contribution $contribution): bool
     {
-        return false;
+        return $contribution->user_id === $user->id;
     }
 
     /**
@@ -45,7 +45,7 @@ class ContributionPolicy
      */
     public function delete(User $user, Contribution $contribution): bool
     {
-        return $contribution->where('user_id', $user->id)->exists();
+        return $contribution->user_id === $user->id;
     }
 
     /**

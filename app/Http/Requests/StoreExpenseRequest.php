@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\File;
 
 class StoreExpenseRequest extends FormRequest
 {
@@ -24,7 +25,7 @@ class StoreExpenseRequest extends FormRequest
         return [
             'amount' => 'required|numeric|min:1',
             'description' => 'nullable|string|max:255',
-            'receipt' => 'nullable|file|mimes:jpg,png,pdf|max:2048',
+            'receipt' => ['nullable', File::types(['jpg', 'png'])->max(2048)],
         ];
     }
 }
