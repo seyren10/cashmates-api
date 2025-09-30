@@ -45,6 +45,10 @@ class ContributionController extends Controller
             return response()->json($contribution->load('media'), 201);
         } catch (Throwable $e) {
             DB::rollBack();
+
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -71,9 +75,6 @@ class ContributionController extends Controller
             $contribution->fill($validated);
             $contribution->save();
 
-            Log::info($contribution->fresh());
-
-
             if ($request->hasFile('receipt')) {
                 $contribution->clearMediaCollection('receipts');
                 $contribution->addMediaFromRequest('receipt')->toMediaCollection('receipts');
@@ -83,10 +84,9 @@ class ContributionController extends Controller
             return response()->noContent();
         } catch (Throwable $e) {
             DB::rollBack();
-            
+
             return response()->json([
-                'message' => 'Failed to update contribution',
-                'error' => $e->getMessage(),
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

@@ -6,6 +6,7 @@ use App\Http\Requests\StoreExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
 use App\Models\Expense;
 use App\Models\SavingsGoal;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 class ExpenseController extends Controller
@@ -30,14 +31,25 @@ class ExpenseController extends Controller
      */
     public function store(StoreExpenseRequest $request, SavingsGoal $savingsGoal)
     {
-        $validated = $request->validated();
-        $expense = $savingsGoal->expenses()->create([...$validated, 'user_id' => $request->user()->id]);
+        try {
+            DB::beginTransaction();
 
-        if ($request->hasFile('receipt'))
-            $expense->addMediaFromRequest('receipt')->toMediaCollection('receipts');
+            $validated = $request->validated();
+            $expense = $savingsGoal->expenses()->create([...$validated, "user_id" => $request->user()->id]);
 
+            if ($request->hasFile('receipt')) {
+                $expense->addMediaFromRequest('receipt')->toMediaCollection('receipts');
+            }
 
-        return response()->json($expense->load('media'), 201);
+            DB::commit();
+            return response()->json($expense->load('media'), 201);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -51,7 +63,34 @@ class ExpenseController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateExpenseRequest $request, Expense $expense) {}
+    public function update(UpdateExpenseRequest $request, Expense $expense)
+    {
+
+        try {
+
+            Gate::authorize('update', $expense);
+
+            DB::beginTransaction();
+
+            $validated = $request->safe()->except('receipt');
+            $expense->fill($validated);
+            $expense->save();
+
+            if ($request->hasFile('receipt')) {
+                $expense->clearMediaCollection('receipts');
+                $expense->addMediaFromRequest('receipt')->toMediaCollection('receipts');
+            }
+
+            DB::commit();
+            return response()->noContent();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 
     /**
      * Remove the specified resource from storage.

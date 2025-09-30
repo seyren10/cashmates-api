@@ -42,7 +42,7 @@ class GroupController extends Controller
         Gate::authorize('view', $group);
 
         return response()->json($group->load(['savingsGoals' => function ($query) {
-            return $query->withCount(['expenses', 'contributions']);
+            return $query->withCount(['expenses', 'contributions'])->withSum('contributions', 'amount')->withSum('expenses', 'amount');
         }]));
     }
 

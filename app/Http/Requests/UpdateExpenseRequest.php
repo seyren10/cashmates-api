@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\File;
 
 class UpdateExpenseRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class UpdateExpenseRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +23,9 @@ class UpdateExpenseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'amount' => 'sometimes|required|numeric|min:1',
+            'description' => 'sometimes|nullable|string|max:255',
+            'receipt' => ['sometimes', 'nullable', File::types(['jpg', 'png'])->max(2048)],
         ];
     }
 }
